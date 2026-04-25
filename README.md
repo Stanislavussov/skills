@@ -42,6 +42,25 @@ npx skills@latest update -g
 npx skills@latest update codebase-analyzer -g
 ```
 
+### Install for specific agents
+
+```bash
+# Pi coding agent
+npx skills@latest add Stanislavussov/skills --agent pi
+
+# Claude Code / Copilot
+npx skills@latest add Stanislavussov/skills --agent claude-code
+
+# OpenCode
+npx skills@latest add Stanislavussov/skills --agent opencode
+
+# Multiple agents at once
+npx skills@latest add Stanislavussov/skills --agent pi,claude-code,opencode
+
+# All available agents
+npx skills@latest add Stanislavussov/skills --all
+```
+
 ### Remove skill
 
 ```bash
