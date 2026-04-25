@@ -41,6 +41,14 @@ Run these **concurrently** using subagent with `type=Explore`:
 - Look for: implicit dependencies, global state, side effects, callbacks, middleware
 
 **Path B: Git Archaeology**
+
+Use the bundled script for automated commit search:
+
+```bash
+node scripts/git-archaeology.js "<feature-name>" 20
+```
+
+Or use manual commands:
 ```bash
 # Recent commits touching related files (last 20)
 git log --oneline -20 --all -- <pattern>
