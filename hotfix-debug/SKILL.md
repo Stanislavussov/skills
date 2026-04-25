@@ -43,7 +43,7 @@ Run these **concurrently** using subagent with `type=Explore`:
 **Path B: Git Archaeology**
 ```bash
 # Recent commits touching related files (last 20)
-git log --oneline -20 --all -- <pattern>  # files matching feature name
+git log --oneline -20 --all -- <pattern>
 
 # What changed in last 3 days
 git log --since="3 days ago" --oneline --all
@@ -67,35 +67,35 @@ In big ball of mud architectures, bugs hide in:
 - Error handling that swallows exceptions
 - Import order side effects
 
-Search for these patterns specifically:
-```bash
-# Global mutable state
-ast-grep -p 'window.$X = $V' src/
-ast-grep -p 'global.$X = $V' src/
-ast-grep -p 'export let $X' src/  # mutable exports
+Search for these patterns using **pi-lens AST tools**:
 
-# Singleton access
-ast-grep -p 'getInstance()' src/
-ast-grep -p 'singleton.$X' src/
+```typescript
+// Global mutable state - use ast_grep_search with TypeScript
+ast_grep_search - lang: typescript - paths: ['src/'] - pattern: 'window.$X = $V'
+ast_grep_search - lang: typescript - paths: ['src/'] - pattern: 'global.$X = $V'
+ast_grep_search - lang: typescript - paths: ['src/'] - pattern: 'export let $X'
 
-# Event emitters
-ast-grep -p 'emit($EVENT, $$$ARGS)' src/
-ast-grep -p 'on($EVENT, $HANDLER)' src/
+// Singleton access
+ast_grep_search - lang: typescript - paths: ['src/'] - pattern: 'getInstance()'
 
-# Try without catch (swallowed errors)
-ast-grep -p 'try { $$$TRY } finally { $$$FINALLY }' -l js src/
+// Event emitters
+ast_grep_search - lang: typescript - paths: ['src/'] - pattern: 'emit($EVENT, $$$ARGS)'
+ast_grep_search - lang: typescript - paths: ['src/'] - pattern: 'on($EVENT, $HANDLER)'
 ```
 
 **Path D: Cross-File Dependencies**
-```bash
-# What imports this module
-ast-grep -p 'import from "$PATH"' --json src/ > imports.json
 
-# Find all files that reference the function/class name
-grep -r "FunctionName\|ClassName" --include="*.ts" src/
+Use **LSP navigation** for TypeScript symbol resolution:
 
-# Check if any decorator/middleware wraps the function
-ast-grep -p '@$DECORATOR function $F($$$P) { $$$B }' src/
+```typescript
+// Find all references to track cross-file dependencies
+lsp_navigation - operation: references - filePath: "src/file.ts" - line: 10 - character: 5
+
+// Search for symbol across codebase
+lsp_navigation - operation: workspaceSymbol - query: "FunctionName" - filePath: "src/"
+
+// Check if any decorator/middleware wraps the function
+ast_grep_search - lang: typescript - paths: ['src/'] - pattern: '@$DECORATOR function $F($$$P) { $$$B }'
 ```
 
 ---
@@ -180,13 +180,16 @@ git diff HEAD~1 -- src/feature/
 
 # Find where variable gets reassigned
 git log -p -S "variableName" -- "*.ts"
+```
 
-# Search for error patterns
-grep -r "throw new Error" --include="*.ts" src/ | head -20
-grep -r "console.error" --include="*.ts" src/ | head -20
+**For TypeScript patterns:**
 
-# Check for unhandled promise rejections
-ast-grep -p 'async function $NAME($$$P) { $$$BODY }' -l js src/ | xargs -I{} ast-grep -p 'return $EXP' --where={} src/
+```typescript
+// Find async functions without try-catch (swallowed errors)
+ast_grep_search - lang: typescript - paths: ['src/'] - pattern: 'async function $NAME($$$P) { $$$BODY }'
+
+// Find unhandled promise rejections
+ast_grep_search - lang: typescript - paths: ['src/'] - pattern: 'return new Promise($RESOLVER)'
 ```
 
 ---
@@ -204,3 +207,18 @@ When done, provide:
 
 ✅ VERIFY: [How to confirm it works]
 ```
+
+---
+
+## Why pi-lens over raw ast-grep?
+
+pi-lens provides:
+- **LSP integration** for TypeScript symbol resolution
+- **Cross-file analysis** via language server
+- **Type-aware search** that understands generics
+- **Definition/references** navigation
+
+Use raw ast-grep only for:
+- Simple pattern matching in JS/TS files
+- Projects without LSP server
+- Bulk text-like searches (not structural)
