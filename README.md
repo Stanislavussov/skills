@@ -92,6 +92,30 @@ npx skills@latest add Stanislavussov/skills/codebase-analyzer
 
 ---
 
+### infra-review
+
+Reviews project infrastructure: bundler and build config, test runner setup, CI/CD pipelines, TypeScript config, linters, package manager and lockfile, monorepo task runners, Docker.
+
+**Use when:**
+- You want a review or audit of build, tooling, CI or dependency setup
+- A diff touches config files (tsconfig, bundler config, test config, workflows, lockfiles)
+- A tool upgrade or migration needs a check
+
+**How it works:**
+1. Pins the installed versions and the real invocations
+2. Checks each tool against current docs (Context7 MCP), real-world usage (grep MCP) and known GitHub issues
+3. Goes through per-area checklists and the seams between tools
+4. Verifies findings with cheap commands
+5. Reports findings with severity, source and fix
+
+Works best with the [Context7](https://github.com/upstash/context7) and [grep](https://vercel.com/blog/grep-a-million-github-repositories-via-mcp) MCP servers and the `gh` CLI; falls back and says so when one is missing.
+
+```bash
+npx skills@latest add Stanislavussov/skills/infra-review
+```
+
+---
+
 ## Creating New Skills
 
 A skill is a directory with `SKILL.md`:
